@@ -1,0 +1,61 @@
+services:
+  - type: web
+    name: coastal-seven-backend
+    runtime: python
+    rootDir: ecommerce_backend_reviewed
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python seed_products.py; celery -A app.tasks.celery_app.celery_app worker --loglevel=info --concurrency=2 & uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.14"
+      - key: PROJECT_NAME
+        value: "Coastal Seven E-Commerce API"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: "HS256"
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: DATABASE_URL
+        value: "sqlite:///./sql_app.db"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:5173,http://127.0.0.1:5173"
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: SMTP_HOST
+        value: "smtp.gmail.com"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DEFAULT_AI_PROVIDER
+        value: "gemini"
+      - key: GROQ_MODEL
+        value: "llama-3.3-70b-versatile"
+      - key: GEMINI_MODEL
+        value: "gemini-3.5-flash-lite"
+      - key: MISTRAL_MODEL
+        value: "mistral-small-latest"
+      - key: CHROMA_PERSIST_DIR
+        value: "./chroma_db"
