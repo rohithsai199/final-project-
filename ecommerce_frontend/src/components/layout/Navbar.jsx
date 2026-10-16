@@ -20,6 +20,8 @@ import NotificationPanel from "../common/NotificationPanel";
 import UserProfileMenu from "./UserProfileMenu";
 import { useQuery } from "@tanstack/react-query";
 import { getOrders } from "../../services/orderService";
+import { getCart } from "../../services/cartService";
+import { useCartStore } from "../../stores/cartStore";
 
 function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -76,6 +78,21 @@ function Navbar() {
     staleTime: 30 * 1000,
   });
   const orderCount = Array.isArray(userOrders) ? userOrders.length : 0;
+
+  const storeItemCount = useCartStore((state) => state.itemCount);
+  const { data: cartData } = useQuery({
+    queryKey: ["cart"],
+    queryFn: async () => {
+      try {
+        return await getCart();
+      } catch {
+        return null;
+      }
+    },
+    enabled: isAuthenticated,
+    staleTime: 10 * 1000,
+  });
+  const cartCount = cartData?.item_count ?? storeItemCount ?? 0;
 
   const handleLogout = () => {
     logout();
@@ -305,13 +322,27 @@ function Navbar() {
               {/* Notifications */}
               <NotificationPanel />
 
-              {/* Cart - Symbol Only */}
+              {/* Cart */}
               <Link
                 to="/cart"
                 className="nav-action-btn cart-btn-icon"
                 title="Your Cart"
+                style={{ position: "relative" }}
               >
                 <ShoppingBag size={16} />
+                {cartCount > 0 && (
+                  <span
+                    className="notification-bell-badge"
+                    style={{
+                      backgroundColor: "#0f172a",
+                      color: "#ffffff",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
               </Link>
 
               {/* Interactive Luxury Profile Flyout & Account Menu */}

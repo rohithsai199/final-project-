@@ -26,6 +26,12 @@ def add_to_cart(
         raise HTTPException(status_code=422, detail="Quantity must be at least 1")
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
+        # Fallback: support 1-based index in the catalog in case frontend passes catalog index
+        all_prods = db.query(Product).order_by(Product.id.asc()).all()
+        if 1 <= product_id <= len(all_prods):
+            product = all_prods[product_id - 1]
+            product_id = product.id
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
     clean_size = (size or "M").strip().upper()
@@ -112,6 +118,11 @@ def update_cart_quantity(
     r=Depends(get_redis),
 ):
     product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        all_prods = db.query(Product).order_by(Product.id.asc()).all()
+        if 1 <= product_id <= len(all_prods):
+            product = all_prods[product_id - 1]
+            product_id = product.id
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 

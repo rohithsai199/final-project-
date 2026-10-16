@@ -400,6 +400,8 @@ function BoysFashionView({ onAddToCart, onBackToNormal }) {
                     id: activeLook.id,
                     name: activeLook.title,
                     price: activeLook.price,
+                    image: activeLook.image,
+                    size: selectedSizes[activeLook.id] || "M",
                   })
                 }
                 className="btn-zevana-add"

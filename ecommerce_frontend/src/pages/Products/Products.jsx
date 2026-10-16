@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Search,
   Sparkles,
@@ -10,12 +10,15 @@ import {
   X,
 } from "lucide-react";
 import { getProducts } from "../../services/productService";
-import { addToCart } from "../../services/cartService";
+import { addToCart, getCart } from "../../services/cartService";
+import { useCartStore } from "../../stores/cartStore";
 import { semanticSearch } from "../../services/aiService";
 import ProductCard from "../../components/product/ProductCard";
 import { useCategoryStore } from "../../stores/categoryStore";
 
 function Products() {
+  const queryClient = useQueryClient();
+  const setCart = useCartStore((state) => state.setCart);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const setActiveCategory = useCategoryStore((state) => state.setActiveCategory);
@@ -196,6 +199,13 @@ function Products() {
   const handleAddToCart = async (product) => {
     try {
       await addToCart(product.id, 1);
+      try {
+        const freshCart = await getCart();
+        queryClient.setQueryData(["cart"], freshCart);
+        setCart(freshCart);
+      } catch {
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+      }
       setToastMessage(`Added "${product.name}" to cart!`);
       setTimeout(() => setToastMessage(""), 3500);
     } catch (err) {

@@ -94,7 +94,7 @@ const CATEGORY_MIDDLE_PRODUCTS = [
   },
 ];
 
-export default function CategoryMiddleShowcase({ onAddToCart }) {
+export default function CategoryMiddleShowcase({ onAddToCart, allProducts = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const setActiveCategory = useCategoryStore((state) => state.setActiveCategory);
@@ -103,21 +103,38 @@ export default function CategoryMiddleShowcase({ onAddToCart }) {
 
   const products = CATEGORY_MIDDLE_PRODUCTS.map((prod) => {
     const custom = config[prod.categoryId];
-    if (!custom) return prod;
-    const customLook = custom.looks?.[2];
+    const customLook = custom?.looks?.[2];
+    const headline = customLook?.title || custom?.centerpieceTitle || prod.headline;
+    const image = customLook?.image || custom?.centerpieceImage || prod.image;
+
+    const matched = allProducts?.find((p) => {
+      if (!p) return false;
+      if (headline && p.name && p.name.trim().toLowerCase() === headline.trim().toLowerCase()) return true;
+      if (prod.headline && p.name && p.name.trim().toLowerCase() === prod.headline.trim().toLowerCase()) return true;
+      if (image && p.image_url) {
+        const targetBase = image.split("/").pop();
+        const pBase = p.image_url.split("/").pop();
+        if (targetBase && pBase && targetBase === pBase) return true;
+      }
+      return false;
+    });
+
+    const resolvedProductId = matched ? matched.id : prod.productId;
+
     return {
       ...prod,
-      collectionName: custom.collectionName || prod.collectionName,
-      headline: customLook?.title || custom.centerpieceTitle || prod.headline,
-      badgeText: customLook?.badge || custom.centerpieceBadge || prod.badgeText,
+      productId: resolvedProductId,
+      collectionName: custom?.collectionName || prod.collectionName,
+      headline,
+      badgeText: customLook?.badge || custom?.centerpieceBadge || prod.badgeText,
       price: customLook?.price
         ? (typeof customLook.price === "number" ? `₹${customLook.price}.00` : customLook.price)
-        : (custom.centerpiecePrice || prod.price),
-      rawPrice: customLook?.price || custom.centerpieceRawPrice || prod.rawPrice,
-      image: customLook?.image || custom.centerpieceImage || prod.image,
-      description: customLook?.tagline || custom.centerpieceDescription || prod.description,
+        : (custom?.centerpiecePrice || prod.price),
+      rawPrice: customLook?.price || custom?.centerpieceRawPrice || prod.rawPrice,
+      image,
+      description: customLook?.tagline || custom?.centerpieceDescription || prod.description,
       highlights:
-        custom.highlights && custom.highlights.length > 0
+        custom?.highlights && custom.highlights.length > 0
           ? custom.highlights
           : prod.highlights,
     };

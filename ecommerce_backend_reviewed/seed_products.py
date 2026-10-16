@@ -232,7 +232,18 @@ def seed_db():
             print("Removing all existing products from database...")
             db.query(Product).delete()
             db.commit()
-        except Exception as cleanup_err:
+
+            try:
+                from sqlalchemy import text
+                dialect = engine.dialect.name
+                if dialect == "postgresql":
+                    db.execute(text("ALTER SEQUENCE products_id_seq RESTART WITH 1;"))
+                elif dialect == "sqlite":
+                    db.execute(text("DELETE FROM sqlite_sequence WHERE name = 'products';"))
+                db.commit()
+            except Exception as seq_err:
+                print(f"Sequence reset notice: {seq_err}")
+                db.rollback()        except Exception as cleanup_err:
             print(f"Notice during cleanup (safe to proceed): {cleanup_err}")
             db.rollback()
 

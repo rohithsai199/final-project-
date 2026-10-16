@@ -401,6 +401,8 @@ function BeautyView({ onAddToCart, onBackToNormal }) {
                     id: activeProduct.id,
                     name: activeProduct.title,
                     price: activeProduct.price,
+                    image: activeProduct.image,
+                    size: selectedSizes[activeProduct.id] || "M",
                   })
                 }
                 className="btn-zevana-add"

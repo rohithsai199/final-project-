@@ -18,8 +18,10 @@ import {
   Award,
   ChevronRight,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getProducts } from "../../services/productService";
-import { addToCart } from "../../services/cartService";
+import { addToCart, getCart } from "../../services/cartService";
+import { useCartStore } from "../../stores/cartStore";
 import ProductCard from "../../components/product/ProductCard";
 import { handleImageError } from "../../utils/imageUrl";
 import CategoryNavRow from "../../components/common/CategoryNavRow";
@@ -160,18 +162,77 @@ function Home() {
     };
   }, []);
 
-  const handleAddToCart = useCallback(async (product) => {
-    try {
-      await addToCart(product.id, 1);
-      setToastMessage(`Added "${product.name}" to your cart!`);
-      setTimeout(() => setToastMessage(""), 3500);
-    } catch (err) {
-      setToastMessage(
-        err.response?.data?.detail || "Please log in to add items to your cart."
-      );
-      setTimeout(() => setToastMessage(""), 4000);
-    }
-  }, []);
+  const queryClient = useQueryClient();
+  const setCart = useCartStore((state) => state.setCart);
+
+  const handleAddToCart = useCallback(
+    async (product) => {
+      try {
+        let currentProducts = products;
+        if (!currentProducts || currentProducts.length === 0) {
+          try {
+            currentProducts = await getProducts({ page_size: 50 });
+          } catch {
+            currentProducts = [];
+          }
+        }
+
+        // Dynamically resolve actual product ID from backend products
+        let targetId = product?.id;
+        const matched = currentProducts.find((p) => {
+          if (!p) return false;
+          if (p.id === product?.id) return true;
+          if (product?.name && p.name && p.name.trim().toLowerCase() === product.name.trim().toLowerCase()) {
+            return true;
+          }
+          if (product?.title && p.name && p.name.trim().toLowerCase() === product.title.trim().toLowerCase()) {
+            return true;
+          }
+          if (product?.headline && p.name && p.name.trim().toLowerCase() === product.headline.trim().toLowerCase()) {
+            return true;
+          }
+          const targetImg = product?.image || product?.image_url;
+          if (targetImg && p.image_url) {
+            const targetBase = targetImg.split("/").pop();
+            const pBase = p.image_url.split("/").pop();
+            if (targetBase && pBase && targetBase === pBase) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+        if (matched) {
+          targetId = matched.id;
+        }
+
+        if (!targetId) {
+          throw new Error("Product ID could not be identified.");
+        }
+
+        await addToCart(targetId, 1, product?.size || "M");
+
+        try {
+          const freshCart = await getCart();
+          queryClient.setQueryData(["cart"], freshCart);
+          setCart(freshCart);
+        } catch {
+          queryClient.invalidateQueries({ queryKey: ["cart"] });
+        }
+
+        const displayName =
+          matched?.name || product?.name || product?.title || product?.headline || "Item";
+        setToastMessage(`Added "${displayName}" to your cart!`);
+        setTimeout(() => setToastMessage(""), 3500);
+      } catch (err) {
+        setToastMessage(
+          err.response?.data?.detail || err.message || "Please log in to add items to your cart."
+        );
+        setTimeout(() => setToastMessage(""), 4000);
+      }
+    },
+    [products, queryClient, setCart]
+  );
 
   return (
     <div className="home-modern-page">
@@ -188,6 +249,7 @@ function Home() {
         <div className="boys-view-container">
           <BoysFashionView
             onAddToCart={handleAddToCart}
+            allProducts={products}
             onBackToNormal={() => {
               setActiveCategory("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -198,6 +260,7 @@ function Home() {
         <div className="girls-view-container">
           <GirlsFashionView
             onAddToCart={handleAddToCart}
+            allProducts={products}
             onBackToNormal={() => {
               setActiveCategory("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -208,6 +271,7 @@ function Home() {
         <div className="kids-view-container">
           <KidsFashionView
             onAddToCart={handleAddToCart}
+            allProducts={products}
             onBackToNormal={() => {
               setActiveCategory("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -218,6 +282,7 @@ function Home() {
         <div className="accessories-view-container">
           <AccessoriesView
             onAddToCart={handleAddToCart}
+            allProducts={products}
             onBackToNormal={() => {
               setActiveCategory("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -228,6 +293,7 @@ function Home() {
         <div className="beauty-view-container">
           <BeautyView
             onAddToCart={handleAddToCart}
+            allProducts={products}
             onBackToNormal={() => {
               setActiveCategory("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -255,7 +321,7 @@ function Home() {
               1. EDITORIAL SHOWCASE (MIDDLE PRODUCTS: BOYS -> GIRLS -> KIDS -> ACCESSORIES -> BEAUTY)
               Fashion-forward full-bleed brand banners inspired by top luxury ecommerce
           ======================================================== */}
-          <CategoryMiddleShowcase onAddToCart={handleAddToCart} />
+          <CategoryMiddleShowcase onAddToCart={handleAddToCart} allProducts={products} />
 
           {/* ========================================================
               2. ALLBIRDS-STYLE REFERENCE PRODUCT FILTER (RED LINE LOCATION)

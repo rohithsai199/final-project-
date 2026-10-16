@@ -12,11 +12,14 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useWishlistStore } from "../../stores/wishlistStore";
-import { addToCart } from "../../services/cartService";
+import { addToCart, getCart } from "../../services/cartService";
 import { useCartStore } from "../../stores/cartStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { handleImageError } from "../../utils/imageUrl";
 
 function WishlistDrawer({ isOpen, onClose }) {
+  const queryClient = useQueryClient();
+  const setCart = useCartStore((state) => state.setCart);
   const wishlist = useWishlistStore((state) => state.wishlist);
   const removeFromWishlist = useWishlistStore((state) => state.removeFromWishlist);
   const clearWishlist = useWishlistStore((state) => state.clearWishlist);
@@ -30,6 +33,13 @@ function WishlistDrawer({ isOpen, onClose }) {
     setAddingId(item.id);
     try {
       await addToCart(item.id, 1);
+      try {
+        const freshCart = await getCart();
+        queryClient.setQueryData(["cart"], freshCart);
+        setCart(freshCart);
+      } catch {
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
+      }
       setToastMsg(`"${item.name}" added to shopping bag!`);
       setTimeout(() => setToastMsg(""), 3500);
     } catch (err) {
