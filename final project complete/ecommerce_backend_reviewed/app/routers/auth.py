@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Response, Request, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from app.config import settings
 from app.utils.rate_limiter import limiter
 
 import logging
-from app.tasks.email_tasks import send_welcome_registration_email
+from app.tasks.email_tasks import send_welcome_registration_email, send_welcome_registration_email_sync
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("20/minute")
-def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
+def signup(request: Request, user: UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     email = user.email.lower()
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -29,11 +29,11 @@ def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    # Dispatch Celery background task to send welcome and login notification email
+    # Dispatch welcome email directly via FastAPI BackgroundTasks
     try:
-        send_welcome_registration_email.delay(recipient_email=new_user.email)
+        background_tasks.add_task(send_welcome_registration_email_sync, recipient_email=new_user.email)
     except Exception as exc:
-        logger.warning(f"Could not dispatch welcome email Celery task: {exc}")
+        logger.warning(f"Could not dispatch welcome email BackgroundTask: {exc}")
 
     return new_user
 

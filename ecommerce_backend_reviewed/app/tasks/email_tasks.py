@@ -1,3 +1,4 @@
+import os
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -7,12 +8,12 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-@celery_app.task(name="send_order_confirmation_email", bind=True, max_retries=3, default_retry_delay=5, ignore_result=True)
-def send_order_confirmation_email(self, recipient_email: str, order_id: int, total_amount: float):
+
+def send_order_confirmation_email_sync(recipient_email: str, order_id: int, total_amount: float) -> str:
     msg = MIMEMultipart("alternative")
-    sender = settings.EMAILS_FROM_EMAIL or settings.SMTP_USER or "noreply@shopstore.com"
+    sender = settings.EMAILS_FROM_EMAIL or os.getenv("EMAILS_FROM_EMAIL:") or settings.SMTP_USER or "noreply@shopstore.com"
     msg["Subject"] = f"Order Confirmation - Order #{order_id}"
-    msg["From"] = sender
+    msg["From"] = f"ARISE <{sender}>"
     msg["To"] = recipient_email
 
     html_content = f"""
@@ -31,6 +32,7 @@ def send_order_confirmation_email(self, recipient_email: str, order_id: int, tot
     msg.attach(MIMEText(html_content, "html"))
 
     if not settings.SMTP_HOST or not settings.SMTP_USER:
+        logger.info(f"SMTP not configured, skipped email to {recipient_email}")
         return f"SMTP not configured, skipped email to {recipient_email}"
 
     try:
@@ -41,16 +43,21 @@ def send_order_confirmation_email(self, recipient_email: str, order_id: int, tot
         logger.info(f"Order email sent successfully to {recipient_email} for #{order_id}")
         return f"Email sent successfully to {recipient_email} for Order #{order_id}"
     except Exception as exc:
-        logger.error(f"Error sending order confirmation email: {exc}")
-        if self.request.retries < self.max_retries:
-            raise self.retry(exc=Exception(str(exc)), countdown=5)
-        return f"Failed to send email after retries: {exc}"
+        logger.error(f"Error sending order confirmation email to {recipient_email}: {exc}")
+        return f"Failed to send email: {exc}"
 
 
-@celery_app.task(name="send_welcome_registration_email", bind=True, max_retries=3, default_retry_delay=5, ignore_result=True)
-def send_welcome_registration_email(self, recipient_email: str):
+@celery_app.task(name="send_order_confirmation_email", bind=True, max_retries=3, default_retry_delay=5, ignore_result=True)
+def send_order_confirmation_email(self, recipient_email: str, order_id: int, total_amount: float):
+    res = send_order_confirmation_email_sync(recipient_email, order_id, total_amount)
+    if "Failed" in res and self.request.retries < self.max_retries:
+        raise self.retry(exc=Exception(res), countdown=5)
+    return res
+
+
+def send_welcome_registration_email_sync(recipient_email: str) -> str:
     msg = MIMEMultipart("alternative")
-    sender = settings.EMAILS_FROM_EMAIL or settings.SMTP_USER or "noreply@arise.com"
+    sender = settings.EMAILS_FROM_EMAIL or os.getenv("EMAILS_FROM_EMAIL:") or settings.SMTP_USER or "noreply@arise.com"
     msg["Subject"] = "Welcome to ARISE - Sign In to Your New Account"
     msg["From"] = f"ARISE <{sender}>"
     msg["To"] = recipient_email
@@ -117,6 +124,7 @@ def send_welcome_registration_email(self, recipient_email: str):
     msg.attach(MIMEText(html_content, "html"))
 
     if not settings.SMTP_HOST or not settings.SMTP_USER:
+        logger.info(f"SMTP not configured, simulated welcome email to {recipient_email}")
         return f"SMTP not configured, simulated welcome email to {recipient_email}"
 
     try:
@@ -128,6 +136,12 @@ def send_welcome_registration_email(self, recipient_email: str):
         return f"Welcome email sent successfully to {recipient_email}"
     except Exception as exc:
         logger.error(f"Error sending welcome email to {recipient_email}: {exc}")
-        if self.request.retries < self.max_retries:
-            raise self.retry(exc=Exception(str(exc)), countdown=5)
-        return f"Failed to send welcome email after retries: {exc}"
+        return f"Failed to send welcome email: {exc}"
+
+
+@celery_app.task(name="send_welcome_registration_email", bind=True, max_retries=3, default_retry_delay=5, ignore_result=True)
+def send_welcome_registration_email(self, recipient_email: str):
+    res = send_welcome_registration_email_sync(recipient_email)
+    if "Failed" in res and self.request.retries < self.max_retries:
+        raise self.retry(exc=Exception(res), countdown=5)
+    return res

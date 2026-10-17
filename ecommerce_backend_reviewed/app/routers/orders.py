@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload, selectinload
 from decimal import Decimal
 
@@ -9,7 +9,7 @@ from app.schemas import OrderResponse, CheckoutRequest
 from app.dependencies import get_current_user, require_admin
 from app.utils.redis_client import get_redis
 from app.services.websocket_manager import manager
-from app.tasks.email_tasks import send_order_confirmation_email
+from app.tasks.email_tasks import send_order_confirmation_email, send_order_confirmation_email_sync
 from app.tasks.invoice_tasks import generate_order_invoice
 from app.utils.rate_limiter import limiter
 
@@ -97,6 +97,7 @@ async def admin_update_order_status(
 @limiter.limit("20/minute")
 async def checkout(
     request: Request,
+    background_tasks: BackgroundTasks,
     payload: Optional[CheckoutRequest] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -186,9 +187,10 @@ async def checkout(
     except Exception:
         pass
 
-    # Email is a confirmation of order placement, not proof of payment.
+    # Email is a confirmation of order placement, sent via BackgroundTasks
     try:
-        send_order_confirmation_email.delay(
+        background_tasks.add_task(
+            send_order_confirmation_email_sync,
             recipient_email=current_user.email,
             order_id=order.id,
             total_amount=float(order.total_amount),
