@@ -224,8 +224,9 @@ def seed_db():
     except Exception as schema_err:
         print(f"Schema creation notice: {schema_err}")
 
-    db = SessionLocal()
+    db = None
     try:
+        db = SessionLocal()
         try:
             print("Cleaning up old order items...")
             db.query(OrderItem).delete()
@@ -470,11 +471,13 @@ def seed_db():
             print(f"ChromaDB sync notice: {err}")
 
     except Exception as e:
-        db.rollback()
+        if db is not None:
+            db.rollback()
         print(f"Error seeding database: {e}")
         raise e
     finally:
-        db.close()
+        if db is not None:
+            db.close()
 
 if __name__ == "__main__":
     seed_db()
