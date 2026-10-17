@@ -1,6 +1,7 @@
 import api from "./api";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://coastal-seven-backend.onrender.com";
 
 /**
  * Initiates SSE streaming for AI Shopping Assistant.

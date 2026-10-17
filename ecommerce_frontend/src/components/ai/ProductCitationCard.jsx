@@ -48,7 +48,7 @@ export default function ProductCitationCard({ citation, onNavigate }) {
       <div className="aura-citation-img-wrap">
         {image_url ? (
           <img
-            src={image_url.startsWith("http") ? image_url : `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}${image_url}`}
+            src={image_url.startsWith("http") ? image_url : `${import.meta.env.VITE_API_URL || "https://coastal-seven-backend.onrender.com"}${image_url}`}
             alt={name}
             className="aura-citation-img"
             onError={(e) => {

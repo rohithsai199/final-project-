@@ -122,7 +122,34 @@ def get_products(
     else:
         query = query.order_by(Product.id.desc())
 
-    products = query.offset((page - 1) * page_size).limit(page_size).all()
+    try:
+        products = query.offset((page - 1) * page_size).limit(page_size).all()
+    except Exception as query_err:
+        logger.warning(f"Product query failed ({query_err}), falling back to standard ILIKE search.")
+        db.rollback()
+        clean_q = q.strip() if q else ""
+        term = f"%{clean_q}%"
+        fallback_query = db.query(Product)
+        if q:
+            fallback_query = fallback_query.filter(or_(Product.name.ilike(term), Product.description.ilike(term)))
+        if min_price is not None:
+            fallback_query = fallback_query.filter(Product.price >= min_price)
+        if max_price is not None:
+            fallback_query = fallback_query.filter(Product.price <= max_price)
+        if in_stock:
+            fallback_query = fallback_query.filter(Product.stock > 0)
+
+        if sort == "price_asc":
+            fallback_query = fallback_query.order_by(Product.price.asc())
+        elif sort == "price_desc":
+            fallback_query = fallback_query.order_by(Product.price.desc())
+        elif sort == "name":
+            fallback_query = fallback_query.order_by(Product.name.asc())
+        else:
+            fallback_query = fallback_query.order_by(Product.id.desc())
+
+        products = fallback_query.offset((page - 1) * page_size).limit(page_size).all()
+
     serialized = [_product_dict(p) for p in products]
 
     if not any([q, min_price is not None, max_price is not None, in_stock]) and sort == "newest" and page == 1:

@@ -20,6 +20,14 @@ from app.utils.rate_limiter import limiter, rate_limit_exceeded_handler
 from app.utils.security_headers import SecurityHeadersMiddleware
 
 try:
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
+        conn.commit()
+except Exception as ext_err:
+    print(f"PostgreSQL pg_trgm extension notice: {ext_err}")
+
+try:
     Base.metadata.create_all(bind=engine)
     from app.database import SessionLocal
     from app.models import Product, ChatMessage, Order

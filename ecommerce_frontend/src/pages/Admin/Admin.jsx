@@ -110,7 +110,8 @@ function Admin() {
 
   const handleDownloadPdf = (pdfUrl, filename) => {
     if (!pdfUrl) return;
-    const backendUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+    const backendUrl =
+      import.meta.env.VITE_API_URL || "https://coastal-seven-backend.onrender.com";
     const fullUrl = pdfUrl.startsWith("http")
       ? pdfUrl
       : `${backendUrl}${pdfUrl.startsWith("/") ? "" : "/"}${pdfUrl}`;
