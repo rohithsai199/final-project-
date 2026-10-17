@@ -11,6 +11,15 @@ export const useAuthStore = create((set) => ({
   loading: true,
 
   initializeAuth: async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (!token) {
+      set({
+        user: null,
+        loading: false,
+      });
+      return;
+    }
+
     try {
       const currentUser = await getCurrentUser({ skipAuthRedirect: true });
 
@@ -19,7 +28,9 @@ export const useAuthStore = create((set) => ({
         loading: false,
       });
     } catch (error) {
-      console.error("Authentication initialization failed:", error);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("access_token");
+      }
 
       set({
         user: null,

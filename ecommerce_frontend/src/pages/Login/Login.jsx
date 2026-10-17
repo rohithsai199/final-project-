@@ -36,9 +36,9 @@ function Login() {
       const detail = err.response?.data?.detail;
       let message = "Login failed. Please check your credentials.";
       if (err.code === "ECONNABORTED" || err.message?.toLowerCase().includes("timeout")) {
-        message = "Connection timed out. Please ensure Docker Desktop and backend service are running.";
+        message = "Server connection timed out. The cloud backend is waking up from sleep mode (Render cold start). Please click sign in again in a moment.";
       } else if (err.message === "Network Error" || !err.response) {
-        message = "Cannot connect to server. Please ensure backend service and Docker Desktop are running.";
+        message = "Cannot connect to server. Please check your internet connection or wait a moment for the cloud server to wake up.";
       } else if (typeof detail === "string") {
         message = detail;
       } else if (Array.isArray(detail)) {
