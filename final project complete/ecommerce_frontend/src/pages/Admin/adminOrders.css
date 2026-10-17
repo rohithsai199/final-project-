@@ -100,12 +100,24 @@
 @media (max-width: 900px) {
   .orders-kpi-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
 @media (max-width: 540px) {
   .orders-kpi-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .order-kpi-card {
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+  .kpi-main-metric {
+    font-size: 20px;
+  }
+  .kpi-title {
+    font-size: 11px;
   }
 }
 
@@ -1130,4 +1142,68 @@
   transform: translateY(-2px);
   box-shadow: 0 16px 36px rgba(11, 15, 25, 0.4);
 }
+
+/* ==========================================================
+   TOP E-COMMERCE MOBILE ADMIN CLEANUP & STREAMLINING
+   ========================================================== */
+@media (max-width: 768px) {
+  .orders-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .orders-actions-header {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .orders-control-panel {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+
+  .order-card-topbar {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .order-top-left-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .order-top-right-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-light, #F1F5F9);
+    padding-top: 8px;
+  }
+
+  .order-dossier-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .order-action-bar-bottom {
+    padding: 12px 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .order-action-bar-bottom .btn-admin-order-action,
+  .order-action-bar-bottom button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 

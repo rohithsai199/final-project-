@@ -345,10 +345,15 @@ function Home() {
                 {homeConfig?.trendingSubtitle || "Hand-picked essentials crafted with bespoke tailoring, Swiss precision, and pure botanical formulas."}
               </p>
             </div>
-            <Link to="/products" className="view-all-link">
-              <span>Explore All ({filteredProducts.length})</span>
-              <ChevronRight size={18} />
-            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span className="mobile-only-swipe-hint" style={{ fontSize: "11px", fontWeight: "700", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Swipe ⇆
+              </span>
+              <Link to="/products" className="view-all-link">
+                <span>Explore All ({filteredProducts.length})</span>
+                <ChevronRight size={18} />
+              </Link>
+            </div>
           </div>
 
           {loading ? (
