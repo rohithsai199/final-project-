@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Package,
@@ -30,6 +30,7 @@ import { generateOrderInvoice } from "../../services/taskService";
 import { addToCart } from "../../services/cartService";
 import { useTaskStore } from "../../stores/taskStore";
 import { useChatStore } from "../../stores/chatStore";
+import { useAuthStore } from "../../stores/authStore";
 import { getProductImageUrl, handleImageError } from "../../utils/imageUrl";
 import ChatPanel from "../../components/common/ChatPanel";
 import "./orders.css";
@@ -57,8 +58,16 @@ function Orders() {
 
   const unreadByOrder = useChatStore((state) => state.unreadByOrder);
   const markOrderRead = useChatStore((state) => state.markOrderRead);
+  const syncUnreadCounts = useChatStore((state) => state.syncUnreadCounts);
+  const user = useAuthStore((state) => state.user);
   const addTask = useTaskStore((state) => state.addTask);
   const tasks = useTaskStore((state) => state.tasks);
+
+  useEffect(() => {
+    if (user?.id) {
+      syncUnreadCounts(user.id);
+    }
+  }, [user?.id, syncUnreadCounts]);
 
   // 1. Fetch Orders Query
   const {
@@ -237,7 +246,7 @@ function Orders() {
       setActiveOrderId(null);
     } else {
       setActiveOrderId(orderId);
-      markOrderRead(orderId);
+      markOrderRead(orderId, user?.id);
       setTimeout(() => {
         chatRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);

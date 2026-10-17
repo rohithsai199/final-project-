@@ -33,17 +33,23 @@ function CustomerSupportWidget() {
   const sendMessage = useChatStore((state) => state.sendMessage);
   const incomingMessages = useChatStore((state) => state.messages);
   const addLocalMessage = useChatStore((state) => state.addLocalMessage);
+  const unreadCount = useChatStore((state) => state.unreadCount);
+  const syncUnreadCounts = useChatStore((state) => state.syncUnreadCounts);
+  const markGeneralRead = useChatStore((state) => state.markGeneralRead);
 
-  // Unread counter for messages from support
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  // 1. Fetch Admin ID & User Orders on Mount/Auth
+  // 1. Fetch Admin ID, User Orders & Sync Unread Counts on Mount/Auth
   useEffect(() => {
     if (!user) return;
 
     getAdminId()
-      .then((id) => setAdminId(id))
-      .catch(() => setAdminId(1));
+      .then((id) => {
+        setAdminId(id);
+        syncUnreadCounts(user.id, id);
+      })
+      .catch(() => {
+        setAdminId(1);
+        syncUnreadCounts(user.id, 1);
+      });
 
     api
       .get("/orders")
@@ -53,7 +59,7 @@ function CustomerSupportWidget() {
         }
       })
       .catch(() => setUserOrders([]));
-  }, [user]);
+  }, [user, syncUnreadCounts]);
 
   // 2. Fetch Chat History when opening or changing adminId
   useEffect(() => {
@@ -81,8 +87,10 @@ function CustomerSupportWidget() {
     };
 
     fetchHistory();
-    setUnreadCount(0);
-  }, [isOpen, user, adminId]);
+    if (user) {
+      markGeneralRead(user.id);
+    }
+  }, [isOpen, user, adminId, markGeneralRead]);
 
   // 3. Reactively Receive WebSocket Messages in Real Time
   useEffect(() => {
@@ -183,8 +191,11 @@ function CustomerSupportWidget() {
         type="button"
         className="concierge-float-trigger"
         onClick={() => {
-          setIsOpen((o) => !o);
-          setUnreadCount(0);
+          const next = !isOpen;
+          setIsOpen(next);
+          if (next && user) {
+            markGeneralRead(user.id);
+          }
         }}
         aria-label="Open Arise Customer Support Chat"
         title="Chat with Arise Concierge & Customer Support"

@@ -28,19 +28,25 @@ function GlobalChatWebSocket() {
         return;
       }
 
-      addIncomingMessage(message);
+      // Do not generate notifications or alerts for your own sent messages
+      if (user && message.sender_id === user.id) {
+        addIncomingMessage(message, user.id);
+        return;
+      }
+
+      addIncomingMessage(message, user?.id);
 
       addNotification({
         type: "chat",
         orderId: message.order_id,
-        title: "New chat message",
+        title: message.order_id ? `Order #ORD-${message.order_id} Concierge` : "Arise Customer Support",
         message:
           message.message?.length > 80
             ? `${message.message.slice(0, 80)}...`
             : message.message,
       });
     },
-    [addIncomingMessage, addNotification]
+    [addIncomingMessage, addNotification, user]
   );
 
   const { isConnected, sendMessage } = useWebSocket({
