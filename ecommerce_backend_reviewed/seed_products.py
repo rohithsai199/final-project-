@@ -244,7 +244,8 @@ def seed_db():
                 db.commit()
             except Exception as seq_err:
                 print(f"Sequence reset notice: {seq_err}")
-                db.rollback()        except Exception as cleanup_err:
+                db.rollback()
+        except Exception as cleanup_err:
             print(f"Notice during cleanup (safe to proceed): {cleanup_err}")
             db.rollback()
 
