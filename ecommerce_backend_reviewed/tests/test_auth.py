@@ -24,7 +24,7 @@ class TestSignup:
     def test_signup_dispatches_welcome_email_celery_task(self, client):
         from unittest.mock import patch
         email = "celery_welcome_test@example.com"
-        with patch("app.routers.auth.send_welcome_registration_email.delay") as mock_task:
+        with patch("app.routers.auth.send_welcome_registration_email_sync") as mock_task:
             res = client.post(
                 "/auth/signup",
                 json={"email": email, "password": "SecurePassword123"},

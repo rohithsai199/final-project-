@@ -80,11 +80,10 @@ class TestCheckout:
         pid = checkout_product["id"]
         client.post(f"/cart/add?product_id={pid}&quantity=1", headers=auth_headers)
 
-        with patch("app.routers.orders.send_order_confirmation_email") as mock_task:
-            mock_task.delay.return_value = MagicMock(id="task-123")
+        with patch("app.routers.orders.send_order_confirmation_email_sync") as mock_task:
             res = client.post("/orders/checkout", headers=auth_headers)
             if res.status_code == 201:
-                mock_task.delay.assert_called_once()
+                mock_task.assert_called_once()
 
 
 class TestOrderCancellation:
