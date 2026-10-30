@@ -70,14 +70,14 @@ jobs:
 
       - name: Initialize Database Schema
         env:
-          DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/test_ecommerce_db
+          DATABASE_URL: sqlite:///./test.db
           SECRET_KEY: testsecretkey1234567890
         run: |
           python -c "import app.models; from app.database import Base, engine; Base.metadata.create_all(bind=engine)"
 
       - name: Run Pytest Test Suite
         env:
-          DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/test_ecommerce_db
+          DATABASE_URL: sqlite:///./test.db
           REDIS_URL: redis://localhost:6379/0
           CELERY_BROKER_URL: redis://localhost:6379/0
           CELERY_RESULT_BACKEND: redis://localhost:6379/0
@@ -113,6 +113,8 @@ jobs:
         run: npm ci --prefer-offline || npm install --legacy-peer-deps
 
       - name: Run Vitest Unit Tests
+        env:
+          VITE_API_URL: http://127.0.0.1:8000
         run: npm run test:run
 
       - name: Run Production Bundle Build
