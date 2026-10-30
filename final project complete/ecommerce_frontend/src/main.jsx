@@ -6,6 +6,30 @@ import App from "./App.jsx";
 
 // Auto-reload when a new Vercel deployment replaces cached chunks
 if (typeof window !== "undefined") {
+  // Lock mobile pinch-to-zoom to ensure a stable, native-app feel on phones
+  document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+  document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+  document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
+
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches && e.touches.length > 1) {
+        e.preventDefault();
+      }
+    },
+    { passive: false }
+  );
+
+  window.addEventListener(
+    "touchmove",
+    (e) => {
+      if (e.touches && e.touches.length > 1) {
+        e.preventDefault();
+      }
+    },
+    { passive: false }
+  );
   window.addEventListener("vite:preloadError", (event) => {
     event?.preventDefault?.();
     window.location.reload();

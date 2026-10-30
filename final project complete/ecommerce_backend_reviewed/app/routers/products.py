@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 from typing import List, Optional
@@ -12,6 +13,8 @@ from app.schemas import ProductResponse, ProductUpdate, ReviewCreate, ReviewResp
 from app.utils.redis_client import get_redis
 from app.dependencies import require_admin, get_current_user
 from app.utils.rate_limiter import limiter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/products", tags=["Products"])
 CACHE_KEY_PRODUCTS = "products:all"
