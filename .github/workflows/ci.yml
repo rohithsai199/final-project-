@@ -72,7 +72,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/test_ecommerce_db
         run: |
-          python -c "from app.database import Base, engine; Base.metadata.create_all(bind=engine)"
+          python -c "import app.models; from app.database import Base, engine; Base.metadata.create_all(bind=engine)"
 
       - name: Run Pytest Test Suite
         env:
@@ -109,7 +109,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci --prefer-offline || npm install --legacy-peer-deps
 
       - name: Run Vitest Unit Tests
         run: npm run test:run
