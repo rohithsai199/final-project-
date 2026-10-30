@@ -82,6 +82,13 @@
 html {
   scroll-behavior: smooth;
   background-color: var(--bg-main);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -91,13 +98,52 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  touch-action: manipulation;
+  position: relative;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .app-layout {
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-main);
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Lock mobile zooming & ensure stable app view */
+@media (max-width: 768px) {
+  html, body {
+    touch-action: pan-y;
+  }
+
+  .horizontal-scroll,
+  [class*="overflow-x-auto"],
+  .boys-arch-gallery,
+  .girls-arch-gallery,
+  .zevana-filmstrip-tray,
+  .hero-category-pills,
+  .products-grid-modern {
+    touch-action: pan-x pan-y !important;
+  }
 }
 
 .main-content {
@@ -4052,6 +4098,7 @@ img {
   .home-modern-page .card-snippet {
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
   }

@@ -19,6 +19,9 @@ export const BOYS_LOOKS = [
     price: 165,
     originalPrice: 195,
     rating: 4.9,
+
+
+  
     reviews: 118,
     badge: "Sharp Fit",
     image: "/images/boys_arch1.jpg",
