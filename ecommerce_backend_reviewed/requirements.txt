@@ -11,6 +11,8 @@ upstash-redis
 redis
 celery
 pytest
+pytest-asyncio
+anyio
 httpx
 psycopg2-binary
 psycopg[binary]
@@ -24,4 +26,3 @@ groq
 google-genai
 mistralai
 reportlab
-
