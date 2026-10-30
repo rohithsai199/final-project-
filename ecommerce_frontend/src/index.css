@@ -320,50 +320,59 @@ img {
 
   /* Clean up top navbar for mobile */
   .navbar-main-container {
-    height: 56px;
-    padding: 0 12px;
-    gap: 6px;
+    height: 54px;
+    padding: 0 8px !important;
+    gap: 4px !important;
+  }
+
+  .navbar-brand.j2b-logo-brand {
+    gap: 4px !important;
+    flex-shrink: 0 !important;
   }
 
   .navbar-brand-logo-img {
-    height: 26px;
-    width: auto;
+    height: 24px !important;
+    width: auto !important;
   }
 
   .navbar-brand-arise-text {
-    font-size: 16px;
-    letter-spacing: 0.5px;
+    font-size: 15px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .navbar-actions {
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .nav-action-btn,
+  .nav-ask-ai-btn,
+  .nav-theme-toggle-btn,
+  .nav-avatar-btn,
+  .nav-mobile-login-btn {
+    width: 29px !important;
+    height: 29px !important;
+    min-width: 29px !important;
+    max-width: 29px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    border-radius: 999px !important;
   }
 
   .nav-ask-ai-btn span {
-    display: none;
-  }
-
-  .nav-ask-ai-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  /* Hide logout icon in top navbar on mobile (accessible in Profile drawer) */
-  .btn-logout-icon {
     display: none !important;
   }
 
   .nav-theme-toggle-btn {
-    display: inline-flex !important;
-    width: 34px !important;
-    height: 34px !important;
-    padding: 0 !important;
-    border-radius: 999px !important;
-    justify-content: center !important;
-    align-items: center !important;
     background: transparent !important;
     border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08)) !important;
     color: var(--text-primary, #0F172A) !important;
-    flex-shrink: 0 !important;
   }
 
   :root[data-theme="dark"] .nav-theme-toggle-btn {
@@ -371,9 +380,63 @@ img {
     color: #FFFFFF !important;
   }
 
-  .navbar-actions {
-    gap: 6px;
-    flex-shrink: 0;
+  .nav-mobile-login-btn {
+    display: inline-flex !important;
+    color: #111111 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #DFDFE6 !important;
+  }
+
+  :root[data-theme="dark"] .nav-mobile-login-btn {
+    color: #FFFFFF !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+  }
+
+  .auth-buttons-group {
+    display: none !important;
+  }
+
+  .nav-avatar-btn .avatar-monogram {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+
+  /* Compact Notification & Cart badges on mobile */
+  .notification-bell-badge {
+    top: -4px !important;
+    right: -4px !important;
+    min-width: 15px !important;
+    height: 15px !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    padding: 0 3px !important;
+    line-height: 15px !important;
+  }
+
+  .bell-pulse-ring {
+    top: -4px !important;
+    right: -4px !important;
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* Mobile popover flyouts positioning */
+  .notification-popover-flyout,
+  .profile-flyout-popover {
+    position: fixed !important;
+    top: 56px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 130px) !important;
+    z-index: 1200 !important;
+  }
+
+  /* Hide logout icon in top navbar on mobile (accessible in Profile drawer) */
+  .btn-logout-icon {
+    display: none !important;
   }
 
   .concierge-float-trigger {
@@ -1111,6 +1174,78 @@ img {
   background-color: #111111;
   color: #FFFFFF;
   border-color: #111111;
+}
+
+.auth-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-nav-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  color: #111111;
+  background-color: #FFFFFF;
+  border: 1px solid #DFDFE6;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-nav-login:hover {
+  background-color: #111111;
+  color: #FFFFFF;
+  border-color: #111111;
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .btn-nav-login {
+  background-color: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:root[data-theme="dark"] .btn-nav-login:hover {
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border-color: #FFFFFF;
+}
+
+.btn-nav-register {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #111111;
+  border: 1px solid #111111;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-nav-register:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .btn-nav-register {
+  background-color: #6C5CE7;
+  border-color: #6C5CE7;
+}
+
+.nav-mobile-login-btn {
+  display: none !important;
 }
 
 .user-dropdown-wrapper {
@@ -6878,4 +7013,4 @@ body {
 
 
 
-
+

@@ -9,6 +9,8 @@ import {
   Moon,
   ChevronDown,
   Shield,
+  LogIn,
+  User,
 } from "lucide-react";
 
 import { useAuthStore } from "../../stores/authStore";
@@ -314,37 +316,37 @@ function Navbar() {
             className="nav-action-btn"
             title="Search catalog"
           >
-            <Search size={15} />
+            <Search size={14} />
+          </Link>
+
+          {/* Notifications (Authenticated) */}
+          {isAuthenticated && <NotificationPanel />}
+
+          {/* Cart - Always accessible on both mobile and desktop */}
+          <Link
+            to="/cart"
+            className="nav-action-btn cart-btn-icon"
+            title="Your Cart"
+            style={{ position: "relative" }}
+          >
+            <ShoppingBag size={14} />
+            {cartCount > 0 && (
+              <span
+                className="notification-bell-badge"
+                style={{
+                  backgroundColor: "#0f172a",
+                  color: "#ffffff",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                }}
+              >
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
           </Link>
 
           {isAuthenticated ? (
             <>
-              {/* Notifications */}
-              <NotificationPanel />
-
-              {/* Cart */}
-              <Link
-                to="/cart"
-                className="nav-action-btn cart-btn-icon"
-                title="Your Cart"
-                style={{ position: "relative" }}
-              >
-                <ShoppingBag size={16} />
-                {cartCount > 0 && (
-                  <span
-                    className="notification-bell-badge"
-                    style={{
-                      backgroundColor: "#0f172a",
-                      color: "#ffffff",
-                      fontSize: "10px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
-                )}
-              </Link>
-
               {/* Interactive Luxury Profile Flyout & Account Menu */}
               <UserProfileMenu />
 
@@ -355,26 +357,40 @@ function Navbar() {
                 className="nav-action-btn btn-logout-icon"
                 title="Log out"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
               </button>
             </>
           ) : (
             /* Logged Out */
-            <div className="auth-buttons-group">
+            <>
+              {/* Mobile Dedicated Login Symbol Button */}
               <Link
                 to="/login"
-                className="btn-nav-login"
+                className="nav-action-btn nav-mobile-login-btn"
+                title="Sign In"
+                aria-label="Sign In"
               >
-                Sign In
+                <LogIn size={14} />
               </Link>
 
-              <Link
-                to="/register"
-                className="btn-nav-register"
-              >
-                Get Started
-              </Link>
-            </div>
+              {/* Desktop Auth Group */}
+              <div className="auth-buttons-group">
+                <Link
+                  to="/login"
+                  className="btn-nav-login"
+                >
+                  <LogIn size={13} style={{ marginRight: 4 }} />
+                  <span>Sign In</span>
+                </Link>
+
+                <Link
+                  to="/register"
+                  className="btn-nav-register"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </div>

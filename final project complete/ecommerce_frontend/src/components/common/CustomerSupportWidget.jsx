@@ -184,6 +184,11 @@ function CustomerSupportWidget() {
     handleSend(prompt);
   };
 
+  // Only render customer support if the user is logged in
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       {/* --- Floating Bottom-Right Concierge Trigger --- */}
