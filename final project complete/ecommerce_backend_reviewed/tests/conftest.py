@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.main import app
+import app.models
 from app.database import Base, get_db
 from app.utils.redis_client import get_redis
 from app.utils.rate_limiter import limiter

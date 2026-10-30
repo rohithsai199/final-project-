@@ -71,6 +71,7 @@ jobs:
       - name: Initialize Database Schema
         env:
           DATABASE_URL: postgresql://postgres:testpassword@localhost:5432/test_ecommerce_db
+          SECRET_KEY: testsecretkey1234567890
         run: |
           python -c "import app.models; from app.database import Base, engine; Base.metadata.create_all(bind=engine)"
 
@@ -103,10 +104,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm ci --prefer-offline || npm install --legacy-peer-deps
