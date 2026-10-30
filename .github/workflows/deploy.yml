@@ -84,9 +84,12 @@ jobs:
       - name: Build Vite Production Bundle
         working-directory: ./ecommerce_frontend
         env:
-          VITE_API_URL: ${{ needs.deploy-backend.outputs.backend_url }}
-          VITE_WS_URL: ${{ format('wss://{0}', replace(replace(needs.deploy-backend.outputs.backend_url, 'https://', ''), 'http://', '')) }}
-        run: npm run build
+          RAW_BACKEND_URL: ${{ needs.deploy-backend.outputs.backend_url }}
+        run: |
+          CLEAN_HOST=$(echo "$RAW_BACKEND_URL" | sed -e 's|^https://||' -e 's|^http://||')
+          export VITE_API_URL="$RAW_BACKEND_URL"
+          export VITE_WS_URL="wss://$CLEAN_HOST"
+          npm run build
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
